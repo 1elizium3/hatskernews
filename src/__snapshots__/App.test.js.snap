@@ -4,6 +4,16 @@ exports[`App есть корректный снимок 1`] = `
 <div
   className="page"
 >
+  <div>
+    <h1>
+      Hello, everyone!!!
+    </h1>
+    <h2>
+      Now is 
+      17:07:57
+      .
+    </h2>
+  </div>
   <div
     className="interactions"
   >
@@ -13,7 +23,7 @@ exports[`App есть корректный снимок 1`] = `
       <input
         onChange={[Function]}
         type="text"
-        value="redux"
+        value="react"
       />
       <button
         type="submit"
@@ -110,22 +120,13 @@ exports[`App есть корректный снимок 1`] = `
       </h1>
     </div>
   </div>
-  <div>
-    <h1>
-      Hello, world!
-    </h1>
-    <h2>
-      Now is Just 
-      7:32:33 PM
-      .
-    </h2>
-  </div>
 </div>
 `;
 
 exports[`Button есть корректный снимок 1`] = `
 <button
   className=""
+  onClick={[Function]}
   type="button"
 >
   Give Me More
@@ -135,6 +136,7 @@ exports[`Button есть корректный снимок 1`] = `
 exports[`Search есть корректный снимок 1`] = `
 <form>
   <input
+    onChange={[Function]}
     type="text"
   />
   <button
@@ -340,5 +342,3 @@ exports[`Table есть корректный снимок 1`] = `
   </div>
 </div>
 `;
-
-exports[`UpdateSearchTopStoriesState отрисовывает без ошибки 1`] = `null`;

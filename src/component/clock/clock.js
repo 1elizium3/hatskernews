@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 
-
 function FormatDate(props)  {
-  return <h2>Now is Just {props.date.toLocaleTimeString()}.</h2>
+  return <h2>Now is {props.date.toLocaleTimeString()}.</h2>
 };
 
-export default class Clock extends Component {
+class Clock extends Component {
 
   state = {
     date: new Date()
@@ -28,10 +27,11 @@ export default class Clock extends Component {
   render() {
     return (
       <div>
-        <h1>Hello, world!</h1>
+        <h1>Hello, everyone!!!</h1>
         <FormatDate date={this.state.date} />
       </div>
     );
   }
-
 };
+
+export default Clock

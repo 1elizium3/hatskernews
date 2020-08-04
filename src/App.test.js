@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
-import Enzyme, { shallow, render, mount } from 'enzyme';
+import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import App, { Search, Button, 
-              Table, UpdateSearchTopStoriesState } from './App';
+
+import App, { UpdateSearchTopStoriesState } from './App';
+import Search from './component/Search/';
+import Table, {Button} from './component/Table/';
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -30,13 +32,13 @@ describe('Search', () => {
 
   it('отрисовывает без ошибки', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Search>Поиск</Search>, div);
+    ReactDOM.render(<Search onChange={() => {}}>Поиск</Search>, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   test('есть корректный снимок', () =>{
     const component = renderer.create(
-      <Search>Поиск</Search>
+      <Search onChange={() => {}}>Поиск</Search>
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
@@ -48,20 +50,20 @@ describe('Button', () => {
  
   it('отрисовывает без ошибки', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Button>Give Me More</Button>, div);
+    ReactDOM.render(<Button onClick={() => {}}>Give Me More</Button>, div);
     ReactDOM.unmountComponentAtNode(div);
   });
 
   it('кнопка присутствует', () => {
     const element = shallow(
-      <Button>Give Me More</Button>
+      <Button onClick={() => {}}>Give Me More</Button>
     );
     expect(element.find('.button-inline'));
   });
 
-  test('есть корректный снимок', () =>{
+  test('есть корректный снимок', () => {
     const component = renderer.create(
-      <Button>Give Me More</Button>
+      <Button onClick={() => {}}>Give Me More</Button>
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
