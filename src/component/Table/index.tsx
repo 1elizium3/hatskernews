@@ -1,40 +1,49 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import {sortBy} from 'lodash';
 
-const SORTS = {
-  NONE: list => list,
-  TITLE: list => sortBy(list, 'title'),
-  AUTHOR: list => sortBy(list, 'author'),
-  COMMENTS: list => sortBy(list, 'num_comments').reverse(),  /*возврат списка в обратном порядке*/
-  POINTS: list => sortBy(list, 'points').reverse()          /*возврат списка в обратном порядке*/
+type State = {
+  sortKey: any,
+  isSortRevers: Boolean,
 };
 
-class Table extends React.Component {
+interface IProps { 
+  list: Array<object>; 
+  onDismiss: (id: number) => void; 
+};
+
+const SORTS: { [key: string]: any} = {
+  NONE: (list:any) => list,
+  TITLE: (list: string) => sortBy(list, 'title'),
+  AUTHOR: (list: string) => sortBy(list, 'author'),
+  COMMENTS: (list: string) => sortBy(list, 'num_comments').reverse(),  /*возврат списка в обратном порядке*/
+  POINTS: (list: string) => sortBy(list, 'points').reverse()          /*возврат списка в обратном порядке*/
+};
+
+class Table extends React.Component<IProps, State > {
 
   state = {
     sortKey: 'NONE',
     isSortRevers: false,
   }
 
-  onSort = (sortKey) => {
+  onSort = (sortKey: any) => {
     const isSortRevers = (
       this.state.sortKey === sortKey && !this.state.isSortRevers
     );
     this.setState({ sortKey, isSortRevers });
   };
-
+  
   render() {
     const { list, onDismiss } = this.props;
-
+    
     const { sortKey, isSortRevers } = this.state;
 
     const sortedList = SORTS[sortKey](list);
     const reversSortedList = (
       isSortRevers ? sortedList.reverse() : sortedList
     );
-  
+    
     return (
       <div className="table">
         <div className="table-header">
@@ -74,8 +83,9 @@ class Table extends React.Component {
             Архив
           </span>
         </div>
-      { reversSortedList.map((item) => 
-        <div key={item.objectID} className="table-row">
+      {/*Проверяю что данные являются массивом Array.isArray(reversSortedList) для Теста */}
+      { Array.isArray(reversSortedList) && reversSortedList.map((item: any, idx: number) =>  
+        <div key={item.objectID + idx} className="table-row">
           <span style={{width: '40%'}}>
             <a href={item.url}>{item.title} </a>
           </span>
@@ -90,18 +100,26 @@ class Table extends React.Component {
             </Button>
           </span>
         </div>
-      )}
+      ) }
     </div>
     )
   };
 };
 
-const Sort = ({ sortKey, onSort, children, activeSortKey }) => {
+interface PSort {
+  children: ReactNode;
+  sortKey: string; 
+  onSort: (sortKey: any) => void;
+  activeSortKey: string;
+}
+
+// Не должно быть any
+const Sort: React.FC<PSort> = ({ sortKey, onSort, children, activeSortKey }) => {
   const sortClass = classNames(
     'button-inline',
     {'button-active' : sortKey === activeSortKey}
   );
-
+    
   return (
     <Button 
       onClick={() => onSort(sortKey)}
@@ -110,26 +128,14 @@ const Sort = ({ sortKey, onSort, children, activeSortKey }) => {
     </Button>
   );
 }
-  
-Table.propTypes = {
-  list: PropTypes.array.isRequired,
-  onDismiss: PropTypes.func.isRequired,
-};
 
-Table.propTypes = {
-  list: PropTypes.arrayOf(
-    PropTypes.shape({
-      objectID: PropTypes.string.isRequired,
-      author: PropTypes.string,
-      url: PropTypes.string,
-      num_comments: PropTypes.number,
-      points: PropTypes.number
-    })
-  ).isRequired,
-  onDismiss: PropTypes.func.isRequired
-};
+interface PButton { 
+  onClick: () => void; 
+  className: string;
+  children: ReactNode;
+}
 
-export const Button = ({ onClick, className='', children }) => {
+export const Button: React.FC<PButton> = ({ onClick, className = '', children }) => {
   return (
     <button
       onClick={onClick}
@@ -141,26 +147,22 @@ export const Button = ({ onClick, className='', children }) => {
   )
 };
 
-Button.defaultProps = {
-  className: '',
-};
-
-Button.propTypes = {
-  onClick: PropTypes.func.isRequired,
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired,
-};
-
 const Loading = () => {
   return(
     <div><h1><i className="fas fa-yin-yang"></i></h1></div>
   )
 };
   
-const withLoading = (Component) => ({isLoading, ...rest}) => {
+interface OnLoadingHocProps {
+  isLoading: any;
+  onClick: () => void;
+  children: ReactNode;
+}
+
+const withLoading = (Component: React.ReactType) => ({isLoading, ...props}: OnLoadingHocProps) => {
   return (
-    isLoading ? <Loading /> : <Component {...rest} />
-  )
+    isLoading ? <Loading /> : <Component {...props} />
+  ) 
 };
 
 export const ButtonWithLoading = withLoading(Button);

@@ -1,8 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types'
 
-class Search extends React.Component {
-  componentDidMount() {
+interface IProps { 
+  children: string; 
+  value: any; 
+  onChange: (e: { target: { value: any; }; }) => void; 
+  onSubmit: (e: { preventDefault: () => void; }) => void; 
+  [propName: string]: any,
+};
+
+class Search extends React.Component<IProps, {}> {
+  // Явно указал HTMLInputElement | null 
+  input = document.querySelector('input');
+  
+  componentDidMount(): void {
     if (this.input) {
       this.input.focus();
     }
@@ -27,10 +37,4 @@ class Search extends React.Component {
   }
 };
   
-Search.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired
-};
-
 export default Search;

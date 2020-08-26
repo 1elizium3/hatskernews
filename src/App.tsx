@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import axios from 'axios';
 import './App.css';
 
 import Clock from './component/clock';
-import Search from './component/Search/';
-import Table, {ButtonWithLoading} from './component/Table/';
+import Search from './component/Search';
+import Table, {ButtonWithLoading} from './component/Table';
 
 const DEFAULT_QUERY = 'react';
-const DEFAULT_HPP = '25';
+const DEFAULT_HPP = '20';
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
@@ -15,39 +15,57 @@ const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
-class App extends Component {
+interface IState {
+  results: any,
+  searchKey: string;
+  searchTerm: string;
+  error: any;
+  isLoading: boolean;
+};
+
+type SearKeyTerm = string;
+
+class App extends React.Component<{}, IState> {
 
   _isMounted = false;
-
-  constructor() {
-    super();
-    this.state = {
-      results: null,
-      searchKey: '',
-      searchTerm: DEFAULT_QUERY,
-      error: null,
-      isLoading: false,
-    };
   
-    this.onDismiss = this.onDismiss.bind(this);
-    this.onSearchChange = this.onSearchChange.bind(this);
-    this.onSearchSubmit = this.onSearchSubmit.bind(this);
-    this.setSearchTopStories = this.setSearchTopStories.bind(this);
-    this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
-    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
+  readonly state: IState = {
+    results: null,
+    searchKey: '',
+    searchTerm: DEFAULT_QUERY,
+    error: null,
+    isLoading: false,
   };
 
-  needsToSearchTopStories(searchTerm) {
+  // constructor() {
+  //   super();
+  //   this.state = {
+  //     results: null,
+  //     searchKey: '',
+  //     searchTerm: DEFAULT_QUERY,
+  //     error: null,
+  //     isLoading: false,
+  //   };
+  
+  //   this.onDismiss = this.onDismiss.bind(this);
+  //   this.onSearchChange = this.onSearchChange.bind(this);
+  //   this.onSearchSubmit = this.onSearchSubmit.bind(this);
+  //   this.setSearchTopStories = this.setSearchTopStories.bind(this);
+  //   this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
+  //   this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
+  // };
+
+  needsToSearchTopStories = (searchTerm:SearKeyTerm) => {
     return !this.state.results[searchTerm];
   };
 
-  setSearchTopStories(result) {
+  setSearchTopStories = (result: {hits:any, page:number}) => {
     const { hits, page } = result;
-    console.log('result', result)
+    // console.log('result', result);    
     this.setState(UpdateSearchTopStoriesState(hits, page));
   };
 
-  fetchSearchTopStories(searchTerm, page = 0) {
+  fetchSearchTopStories = (searchTerm:SearKeyTerm, page = 0) => {
     this.setState({ isLoading: true });
     axios
       .get(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}
@@ -56,47 +74,45 @@ class App extends Component {
       .catch(error => this._isMounted && this.setState({ error }));
   };
 
-  componentDidMount() {
+  componentDidMount():void {
     this._isMounted = true;
 
     const { searchTerm } = this.state;
-    this.setState({
-      searchKey: searchTerm
-    });
+    
+    this.setState({ searchKey: searchTerm });
     this.fetchSearchTopStories(searchTerm);
   };
 
-  componentWillUnmount() {
+  componentWillUnmount():void {
     this._isMounted = false;
   };
 
-  onSearchChange(event) {
-    console.log('somethingText')
+  onSearchChange = (e: {target: {value:string} }) => {
     this.setState({
-      searchTerm: event.target.value
+      searchTerm: e.target.value
     });
   };
-
-  onSearchSubmit(e) {
+  // Поиск на стороне клиента и сервера
+  onSearchSubmit = (e: {preventDefault: () => void}) => {
     const { searchTerm } = this.state;
     this.setState({
       searchKey: searchTerm
     });
-
-    if (this.fetchSearchTopStories(searchTerm)) {
+    // Добавил проверко на не-null для TS
+    if (this.fetchSearchTopStories(searchTerm) !== null) {
       this.fetchSearchTopStories(searchTerm);
     };
     
     e.preventDefault();
   };
-
-  onDismiss(id) {
+  // 
+  onDismiss = (id: number) => {
     console.log('onDis')
 
     const { searchKey, results } = this.state;
     const { hits, page } = results[searchKey];
 
-    const isNotId = (item) => item.objectID !== id;
+    const isNotId = (item: { objectID: number }) => item.objectID !== id;
     const updateHits = hits.filter(isNotId);
 
     this.setState({
@@ -158,7 +174,7 @@ class App extends Component {
   };
 };
 
-export const UpdateSearchTopStoriesState = (hits, page) => (prevState) => {
+export const UpdateSearchTopStoriesState = (hits: any, page: number) => (prevState: { searchKey: SearKeyTerm; results: any; }) => {
   const { searchKey, results } = prevState;
 
   const oldHits = results && results[searchKey] 
